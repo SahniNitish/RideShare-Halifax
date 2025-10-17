@@ -234,3 +234,4 @@ Built for the Halifax hackathon to solve real transportation challenges for stud
 
 🎓 Support student volunteers • 💰 Save money • 🌍 Reduce carbon footprint
 # RideShare-Halifax
+# RideShare-Halifax
