@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import RideMap from '../components/Map'
+import { halifaxLocations } from '../data/sampleData'
 
 export default function ActiveRide({ user }) {
   const navigate = useNavigate()
   const { id } = useParams()
   const [progress, setProgress] = useState(30)
+  const [currentLocation, setCurrentLocation] = useState([44.6698, -63.5664])
 
   // Simulate ride progress
   useEffect(() => {
@@ -20,20 +23,38 @@ export default function ActiveRide({ user }) {
     return () => clearInterval(interval)
   }, [])
 
+  // Simulate car movement
+  useEffect(() => {
+    const startCoords = halifaxLocations.dartmouth.coords
+    const endCoords = halifaxLocations.downtown.coords
+
+    const interval = setInterval(() => {
+      setCurrentLocation(prev => {
+        const t = progress / 100
+        return [
+          startCoords[0] + (endCoords[0] - startCoords[0]) * t,
+          startCoords[1] + (endCoords[1] - startCoords[1]) * t
+        ]
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [progress])
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Map area */}
-      <div className="flex-1 bg-gradient-to-br from-blue-100 to-blue-200 relative">
-        <div className="absolute top-4 left-4 bg-white px-4 py-2 rounded-lg shadow-md">
+      <div className="flex-1 relative">
+        <div className="absolute top-4 left-4 bg-white px-4 py-2 rounded-lg shadow-md z-10">
           <p className="text-sm text-gray-600">Arriving in</p>
           <p className="text-xl font-bold text-primary">15 minutes</p>
         </div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-6xl mb-2">🚗</div>
-            <p className="text-gray-700 font-semibold">Ride in progress...</p>
-          </div>
-        </div>
+        <RideMap
+          start={halifaxLocations.dartmouth.coords}
+          end={halifaxLocations.downtown.coords}
+          currentLocation={currentLocation}
+          showRoute={true}
+          height="100%"
+        />
       </div>
 
       {/* Driver card */}

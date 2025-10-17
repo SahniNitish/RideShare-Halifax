@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { sampleDrivers, calculateDistance, calculateTaxiPrice } from '../data/sampleData'
+import { sampleDrivers, calculateDistance, calculateTaxiPrice, halifaxLocations } from '../data/sampleData'
 import BottomNav from '../components/BottomNav'
+import RideMap from '../components/Map'
 
 export default function SearchResults({ user }) {
   const navigate = useNavigate()
@@ -13,6 +14,15 @@ export default function SearchResults({ user }) {
   const handleRideClick = (ride) => {
     navigate(`/ride/${ride.id}`, { state: { ride, searchParams } })
   }
+
+  // Get coordinates for map
+  const getCoords = (locationName) => {
+    const location = Object.values(halifaxLocations).find(loc => loc.name === locationName)
+    return location ? location.coords : null
+  }
+
+  const fromCoords = searchParams.fromCoords || getCoords(searchParams.from) || halifaxLocations.dartmouth.coords
+  const toCoords = searchParams.toCoords || getCoords(searchParams.to) || halifaxLocations.downtown.coords
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -35,22 +45,14 @@ export default function SearchResults({ user }) {
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-4">
-        {/* Map placeholder */}
+        {/* Map */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-4">
-          <div className="h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center relative">
-            <div className="absolute top-4 left-4 bg-white px-3 py-2 rounded-lg shadow-md text-sm font-semibold">
-              12.5 km
-            </div>
-            <div className="text-center">
-              <p className="text-gray-600 text-sm">
-                {searchParams.from || 'Start'}
-              </p>
-              <p className="text-3xl my-2">↓</p>
-              <p className="text-gray-600 text-sm">
-                {searchParams.to || 'Destination'}
-              </p>
-            </div>
-          </div>
+          <RideMap
+            start={fromCoords}
+            end={toCoords}
+            showRoute={true}
+            height="250px"
+          />
         </div>
 
         {/* Ride cards */}
